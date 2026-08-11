@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(just:*)",
+      "Bash(go build:*)",
+      "Bash(go test:*)",
+      "Bash(go vet:*)",
+      "Bash(gofmt:*)",
+      "Bash(nix develop --command:*)",
+      "Bash(nixfmt:*)",
+      "Bash(bun install)",
+      "Bash(bun run:*)",
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)"
+    ],
+    "deny": [
+      "Bash(./deploy-fullstack.sh)",
+      "Read(./data/**)"
+    ]
+  }
+}
