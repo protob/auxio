@@ -34,7 +34,7 @@ proxy** such as Caddy. It is not multi-tenant and has no IAM, STS, or policy eng
 knows the key needs no credentials, which is what a prototype needs to serve media
 directly. Upload an object, use its URL. The object list is not published. **Enumerating a bucket always requires credentials**, public or not.
 
-**Not implemented, not in scope by design:** object versioning, lifecycle rules, ACL XML and bucket
+**Not implemented, not in scope:** object versioning, lifecycle rules, ACL XML and bucket
 policies, IAM/STS, cross-region replication, bucket notifications, 
 object lock, CopyObject.
 
