@@ -1,0 +1,1 @@
+ALTER TABLE buckets ADD COLUMN bucket_group TEXT NOT NULL DEFAULT '';
