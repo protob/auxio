@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Sets color-scheme before the stylesheet loads; tokens.css overrides it
+         per data-mode once CSS is active. Without this meta tag, native control
+         internals and autofill render light-on-light in dark mode during that gap. -->
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" type="image/svg+xml" href="/dashboard/favicon.svg" />
+    <title>Auxio Dashboard</title>
+    <script>
+      // Runs before first paint, since useMode() only reconciles after mount -
+      // this is what prevents a light-mode user seeing a dark flash. Dark is
+      // canonical; only an explicit pin opts out. Duplicated from
+      // _shared/useMode.ts, not imported (this runs before any JS bundle).
+      if (localStorage.getItem('prt-mode') === 'light') {
+        document.documentElement.dataset.mode = 'light'
+      }
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

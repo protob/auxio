@@ -1,0 +1,401 @@
+/* ==========================================================================
+   Protobiont UI — Design Tokens
+   Two layers: primitives (--p-*) and semantic tokens (everything else).
+   Components reference ONLY semantic tokens, via uno.config.ts utilities.
+   Dark is the default (:root). Light is a value override, not a rebuild.
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  /* --- Layer 1: primitives -------------------------------------------- */
+  --p-emerald: #1ac973;
+  --p-emerald-deep: #052e1c;
+  --p-red: #d42a2a;
+  --p-orange: #f79f1a;
+  --p-blue: #2563eb;
+
+  --p-n950: #0a0a0a;
+  --p-n900: #171717;
+  --p-n800: #262626;
+  --p-n700: #404040;
+  --p-n500: #737373;
+  --p-n300: #d4d4d4;
+  --p-n200: #e5e5e5;
+
+  /* categorical palette: data-viz / tags ONLY, never controls */
+  --p-cat-teal: #0d7377;
+  --p-cat-purple: #7e22ce;
+  --p-cat-magenta: #e61a8d;
+
+  /* --- Layer 2: semantic ----------------------------------------------- */
+
+  /* surfaces: 4 elevation steps, nothing else allowed */
+  --surface-0: var(--p-n950); /* page background        */
+  --surface-1: var(--p-n900); /* cards, panels          */
+  --surface-2: var(--p-n800); /* inputs, raised, hover  */
+  --surface-3: var(--p-n700); /* active, pressed        */
+
+  /* ink: 3 text levels, nothing else allowed */
+  --ink: #ffffff;
+  --ink-muted: var(--p-n300);
+  --ink-faint: var(--p-n500);
+
+  /* identity */
+  --accent: var(--p-emerald);
+  --accent-ink: var(--p-emerald-deep); /* text ON accent surfaces */
+  --danger: var(--p-red);
+  --warning: var(--p-orange);
+  --info: var(--p-blue);
+  /* intent inks — text ON intent surfaces (the --accent-ink precedent).
+     Hand-designed, hue-tinted, never pure #000/#fff. Warning is the bright
+     pad of the trio: dark ink in dark mode (the amber rule), flips per mode. */
+  --danger-ink: oklch(96% 0.02 25);
+  --warning-ink: oklch(24% 0.05 75);
+  --info-ink: oklch(96% 0.02 260);
+
+  /* structure */
+  --edge: oklch(100% 0 0 / 0.08); /* hairline border on every surface */
+  --edge-strong: oklch(100% 0 0 / 0.16);
+  --wash: oklch(100% 0 0 / 0.06); /* hover wash over current surface */
+  --scrim: oklch(0% 0 0 / 0.6); /* modal ::backdrop — the one legal full-page veil */
+  --radius-control: 6px; /* buttons, inputs, chips   */
+  --radius-surface: 10px; /* cards, popovers, drawers */
+  --radius-mark: 3px; /* small selection marks (checkbox box) — control radius reads blobby at ~16px */
+
+  /* depth & motion */
+  --shadow-raise: 0 1px 2px rgb(0 0 0 / 0.4), 0 0 0 1px var(--edge);
+  --shadow-float: 0 8px 24px rgb(0 0 0 / 0.5), 0 0 0 1px var(--edge);
+  /* a heavier third tier — modals/drawers/sheets need more diffuse "lift off
+     the whole page" depth than --shadow-float (menus/tooltips). Keeps the
+     hairline ring. Dark-UI elevation = surface lightness + hairline; shadows
+     only for things that truly float. */
+  --shadow-overlay: 0 0 0 1px var(--edge), 0 16px 48px oklch(0 0 0 / 0.6),
+    0 2px 8px oklch(0 0 0 / 0.32);
+  /* top-edge inner highlight — the "catch the light" 1px inner stroke on
+     RAISED surfaces (surface-2/3 only); NEVER on the canvas or on a floating
+     overlay. Compose alongside the edge border via box-shadow. */
+  --inset-highlight: inset 0 1px 0 oklch(1 0 0 / 0.06);
+  --motion-duration: 150ms;
+  --motion-ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* scoped-scrollbar tokens — derived from existing semantics, no new colours.
+     Drive the .prt-scroll/-fancy utility classes (appended below); track the
+     mode for free. */
+  --scrollbar-thumb: var(--edge-strong);
+  --scrollbar-thumb-hover: var(--ink-faint);
+  --scrollbar-track: transparent;
+  /* Page scrollbar: sets colour explicitly so the UA dark-theme grey track (a
+     side effect of color-scheme: dark) is overridden. Track stays transparent;
+     only the thumb is coloured - scrollbar-color sets both together (CSS has
+     no track-only property). Inherits down; .prt-scroll panes reuse the pair. */
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  /* geometry — the overlay thumb thickness for PrtScrollArea (the controlled JS
+     tier); the size prop overrides it per-instance. em banned; rem only. */
+  --scrollbar-size: 0.4375rem;
+
+  /* text drawn OVER a dark media scrim (PrtBanner overlay). MODE-STABLE on
+     purpose: the scrim is dark in BOTH modes, so this near-white must NOT
+     flip with --ink — there is no [data-mode='light'] override. Never raw
+     #fff (keeps the no-raw-colour rule). */
+  --ink-on-scrim: oklch(98% 0.005 250);
+  /* its inverse — text over a LIGHT scrim (PrtBanner overlay, scrim-tone="light"
+     for bright / high-key imagery). Also MODE-STABLE: a light veil is light in
+     BOTH modes, so this near-black must NOT flip with --ink either. Never raw
+     #000. */
+  --ink-on-scrim-inverse: oklch(18% 0.01 250);
+
+  /* typography */
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+
+  /* --- Layer 3: the seed rack ---
+     A seed is one value a whole coordinated style set derives from (background,
+     ink, hover, wash). Numeric suffix = a pad (--seed-7); word suffix = derived
+     (--seed-ink). Tuning invariant: pad N and pad N+5 are near-complements
+     (hand-tuned, not mathematical mirrors); 1/2 are neutrals; 6/7 the identity
+     pair. A theme that reloads the rack must do so in pairs at the same offsets. */
+  --seed-1: oklch(37.1% 0 0); /* graphite                       */
+  --seed-2: oklch(23.9% 0 0); /* void                           */
+  --seed-3: oklch(50.6% 0.083 199.2); /* deep teal   ↔ seed-8   */
+  --seed-4: oklch(49.6% 0.237 301.9); /* violet      ↔ seed-9   */
+  --seed-5: oklch(61.2% 0.241 354.2); /* magenta     ↔ seed-10  */
+  --seed-6: oklch(58% 0.135 165.4); /* sea — identity's quiet sibling */
+  --seed-7: var(--accent); /* emerald — THE identity; tracks accent across modes */
+  --seed-8: oklch(56.6% 0.205 26.9); /* crimson      ↔ seed-3   */
+  --seed-9: oklch(77.3% 0.163 69.1); /* amber        ↔ seed-4   */
+  --seed-10: oklch(54.6% 0.215 262.9); /* azure      ↔ seed-5   */
+
+  /* designed inks — a hand-tuned ink for a pad, by eye, where the derived
+     tint isn't enough. Declaring --seed-N-ink for ANY pad (here, a theme,
+     a wrapper) overrides the derivation for that pad only; pads without one
+     keep the derived tint. The identity pair rides together. */
+  --seed-7-ink: var(--accent-ink);
+
+  /* derivation knobs — the engine's tuning constants, exposed as theme
+     surface. Re-declare any of these (theme block, wrapper, devtools) and
+     every seeded component re-derives. Plain numbers: they substitute into
+     the relative-color formulas in the derivation layer below. */
+  --derive-ink-dark: 0.16; /* L of the tinted dark ink                        */
+  --derive-ink-light: 0.95; /* L of the tinted light ink (off-white: halation) */
+  --derive-ink-chroma: 0.3; /* fraction of seed chroma kept in the ink        */
+  --derive-hover-lift: 1.1; /* hover lightness multiplier                     */
+  --derive-wash-alpha: 0.14; /* wash opacity                                  */
+  --derive-body-alpha: 0.75; /* mono body text strength (dims toward surface) */
+}
+
+/* seed selection. Generic rule FIRST: any data-seed value not matched
+   below (e.g. an out-of-range data-seed="11") degrades to the identity
+   accent instead of failing silently. Specific pads override by order. */
+[data-seed] {
+  --seed: var(--accent);
+}
+[data-seed='1'] {
+  --seed: var(--seed-1);
+}
+[data-seed='2'] {
+  --seed: var(--seed-2);
+}
+[data-seed='3'] {
+  --seed: var(--seed-3);
+}
+[data-seed='4'] {
+  --seed: var(--seed-4);
+}
+[data-seed='5'] {
+  --seed: var(--seed-5);
+}
+[data-seed='6'] {
+  --seed: var(--seed-6);
+}
+[data-seed='7'] {
+  --seed: var(--seed-7);
+}
+[data-seed='8'] {
+  --seed: var(--seed-8);
+}
+[data-seed='9'] {
+  --seed: var(--seed-9);
+}
+[data-seed='10'] {
+  --seed: var(--seed-10);
+}
+
+/* Derivation layer — the ONLY place relative-color math is legal.
+   Components consume var(--seed), var(--seed-ink), var(--seed-hover),
+   var(--seed-wash), var(--seed-body) and never write their own
+   oklch(from …) formulas.
+   Ink: a polarity flip — round(1.21 - l) resolves to 0 (dark ink, for pads
+   lighter than l≈0.71) or 1 (light ink) — landing on hue-locked TINTED
+   extremes via clamp(), never pure #000/#fff. Chroma is suppressed
+   (× --derive-ink-chroma) so gamut mapping stays gentle at the extremes.
+   Gamut note: keep derivations gentle (hover lift, alpha washes are safe);
+   if a theme ever loads near-extreme-lightness pads, reduce chroma
+   alongside lightness or clipping causes visible hue shifts.
+   Note: inside oklch(from …), bare l/c/h are the destructured color
+   CHANNELS of the seed value — unrelated to pad numbering. */
+[data-seed] {
+  --seed-ink-auto: oklch(
+    from var(--seed)
+      clamp(var(--derive-ink-dark), round(1.21 - l), var(--derive-ink-light))
+      calc(c * var(--derive-ink-chroma)) h
+  );
+  --seed-ink: var(--seed-ink-auto);
+  --seed-hover: oklch(from var(--seed) calc(l * var(--derive-hover-lift)) c h);
+  --seed-wash: oklch(from var(--seed) l c h / var(--derive-wash-alpha));
+  /* body: the seed as fluent TEXT, dimmed toward the surface (alpha, so it
+     tracks whatever it sits on) — the title at full seed still leads.
+     Consumer: notice `mono` treatment. */
+  --seed-body: oklch(from var(--seed) l c h / var(--derive-body-alpha));
+}
+/* contrast-color() upgrade deliberately ABSENT: it is WCAG-2-chained and
+   binary — it would undo the tint and misjudge mid-tones (royal-blue → black
+   text). */
+
+/* Intent washes + bodies — the --seed-wash/--seed-body formulas applied to
+   the true-state colors, derived here because this is the ONLY place
+   relative-color math is legal. var(--info) resolves at the consuming
+   element, so mode overrides track for free. Consumers: notice wash/ghost
+   variants (washes), notice mono treatment (bodies). */
+:root {
+  --info-wash: oklch(from var(--info) l c h / var(--derive-wash-alpha));
+  --accent-wash: oklch(from var(--accent) l c h / var(--derive-wash-alpha));
+  --warning-wash: oklch(from var(--warning) l c h / var(--derive-wash-alpha));
+  --danger-wash: oklch(from var(--danger) l c h / var(--derive-wash-alpha));
+  --info-body: oklch(from var(--info) l c h / var(--derive-body-alpha));
+  --accent-body: oklch(from var(--accent) l c h / var(--derive-body-alpha));
+  --warning-body: oklch(from var(--warning) l c h / var(--derive-body-alpha));
+  --danger-body: oklch(from var(--danger) l c h / var(--derive-body-alpha));
+
+  /* --- auxio-local -----------------------------------------------------
+     App-specific tokens; everything else in this file tracks the kit template.
+     Placed inside the derivation layer because relative-colour math is legal
+     in this file and nowhere else. */
+
+  /* the kit has no sidebar surface of its own */
+  --sidebar: var(--surface-1);
+  /* PrtAppShell sizes its track from what the sidebar reports, but PrtSidebar
+     takes width as a prop, so the number needs a home */
+  --sidebar-width: 250px;
+  /* --accent-wash at 0.14 is tuned for component fills and is too faint to
+     read as selected text */
+  --selection: oklch(from var(--accent) l c h / 0.32);
+}
+
+/* Designed-ink selection — AFTER the derivation block on purpose (same
+   specificity; source order is what lets a designed ink win). A theme gives
+   any pad a hand-designed ink by declaring --seed-N-ink — pure variable
+   re-declaration, no selectors needed. An undefined designed ink falls
+   through to the derived tint: a half-defined theme degrades gracefully,
+   never to broken ink. NEVER write var(--seed-N-ink) without the fallback. */
+[data-seed='1'] {
+  --seed-ink: var(--seed-1-ink, var(--seed-ink-auto));
+}
+[data-seed='2'] {
+  --seed-ink: var(--seed-2-ink, var(--seed-ink-auto));
+}
+[data-seed='3'] {
+  --seed-ink: var(--seed-3-ink, var(--seed-ink-auto));
+}
+[data-seed='4'] {
+  --seed-ink: var(--seed-4-ink, var(--seed-ink-auto));
+}
+[data-seed='5'] {
+  --seed-ink: var(--seed-5-ink, var(--seed-ink-auto));
+}
+[data-seed='6'] {
+  --seed-ink: var(--seed-6-ink, var(--seed-ink-auto));
+}
+[data-seed='7'] {
+  --seed-ink: var(--seed-7-ink, var(--seed-ink-auto));
+}
+[data-seed='8'] {
+  --seed-ink: var(--seed-8-ink, var(--seed-ink-auto));
+}
+[data-seed='9'] {
+  --seed-ink: var(--seed-9-ink, var(--seed-ink-auto));
+}
+[data-seed='10'] {
+  --seed-ink: var(--seed-10-ink, var(--seed-ink-auto));
+}
+
+/* --- Light mode: value overrides only. Components never know. ----------- */
+[data-mode='light'] {
+  color-scheme: light;
+
+  --surface-0: #fafafa;
+  --surface-1: #ffffff;
+  --surface-2: #f4f4f5;
+  --surface-3: #e4e4e7;
+
+  --ink: #18181b;
+  --ink-muted: #3f3f46;
+  --ink-faint: #71717a;
+
+  /* darker emerald — same hue, legible on white */
+  --accent: #0f9d58;
+  --accent-ink: #ffffff;
+  --danger: #b91c1c;
+  --warning: #b45309;
+  --info: #1d4ed8;
+  /* light-mode warning is dark enough for light ink — the polarity flip */
+  --warning-ink: oklch(97% 0.02 75);
+
+  --edge: oklch(0% 0 0 / 0.1);
+  --edge-strong: oklch(0% 0 0 / 0.18);
+  --wash: oklch(0% 0 0 / 0.05);
+  --scrim: oklch(0% 0 0 / 0.35); /* lighter veil — white surrounds need less */
+
+  --shadow-raise: 0 1px 3px rgb(0 0 0 / 0.1), 0 0 0 1px var(--edge);
+  --shadow-float: 0 8px 24px rgb(0 0 0 / 0.16), 0 0 0 1px var(--edge);
+  /* lighter overlay on white surrounds — white needs far less veil */
+  --shadow-overlay: 0 0 0 1px var(--edge), 0 16px 48px oklch(0 0 0 / 0.18),
+    0 2px 8px oklch(0 0 0 / 0.1);
+  /* the inner top-edge highlight is barely-there on light surfaces — a hair
+     brighter than dark so it still reads */
+  --inset-highlight: inset 0 1px 0 oklch(100% 0 0 / 0.5);
+
+  /* hover darkens on light surfaces — same knob, opposite direction */
+  --derive-hover-lift: 0.92;
+
+  /* light rack — same instrument, re-voiced: hue held, chroma ~held,
+     lightness shifted for white surrounds. Pairs reload in pairs (3↔8,
+     4↔9, 5↔10) and each pad's ink polarity is mode-stable: only amber 9
+     takes dark ink, in BOTH modes (the blessed bright pad — darkening
+     amber until light ink works would make it brown). Neutrals 1–2 and
+     seed-7 (rides --accent) need no override. */
+  --seed-3: oklch(46% 0.09 199.2);
+  --seed-4: oklch(45% 0.237 301.9);
+  --seed-5: oklch(52% 0.22 354.2);
+  --seed-6: oklch(52% 0.14 165.4);
+  --seed-8: oklch(50% 0.205 26.9);
+  --seed-9: oklch(74% 0.17 69.1);
+  --seed-10: oklch(48% 0.215 262.9);
+}
+
+/* ==========================================================================
+   Scoped scrollbar (Tier 0) — utilities for an INDIVIDUAL overflow container
+   (the page scrollbar is global; this styles a panel/pane). Pure CSS, no JS.
+   Colours ride tokens; em banned.
+
+   `.prt-scroll` (the safe default) = COLOUR ONLY (scrollbar-color; NO forced
+   width — see the rule's note), which renders robustly in Chrome 121+, Firefox
+   AND Zen at the browser's default width. We
+   keep it off the ::-webkit tier on purpose: Gecko 151+ (e.g. Zen) answers
+   `@supports selector(::-webkit-scrollbar)` TRUE and mis-routes into the Chrome
+   branch — applying the ::-webkit width but ignoring the thumb colour → an
+   uncoloured hair-thin bar. `scrollbar-width` is keyword-only, so the px of
+   'thin' is browser/OS-config-driven (Zen ships it narrow) — NOT page-fixable;
+   that's Tier 1 PrtScrollArea's job (pixel-exact in every engine).
+
+   `.prt-scroll-fancy` = the Chrome ::-webkit polish (exact width/radius/hover),
+   @supports-gated to dodge the Chrome-121 coexistence trap (standard props on
+   the same element DISABLE ::-webkit). ⚠️ KNOWN: this Chrome tier mis-routes in
+   Gecko 151+/Zen (it answers `selector(::-webkit-scrollbar)` true) → hair-thin
+   there. It's a Chrome nicety; use `.prt-scroll` or Tier 1 for Gecko parity.
+
+   No `scrollbar-gutter: stable`: under GNOME overlay scrollbars a reserved
+   gutter flips overlay↔classic on hover → reflow → cursor-repulsion.
+   ========================================================================== */
+.prt-scroll {
+  /* No scrollbar-width: Firefox's is keyword-only (auto | thin | none) - no
+     medium value, so leave width at the browser default and set colour only. */
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* fancy — Chrome gets the custom ::-webkit tier; other engines fall back to the
+   plain thin standard look. The @supports split is MANDATORY (the trap). */
+@supports not selector(::-webkit-scrollbar) {
+  .prt-scroll-fancy {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+}
+@supports selector(::-webkit-scrollbar) {
+  /* NO standard scrollbar-width/-color here — they'd nuke ::-webkit in Cr121+ */
+  .prt-scroll-fancy {
+    scrollbar-gutter: stable;
+  }
+  .prt-scroll-fancy::-webkit-scrollbar {
+    width: 0.375rem;
+    height: 0.375rem;
+  }
+  .prt-scroll-fancy::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+  .prt-scroll-fancy::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: var(--radius-mark);
+  }
+  .prt-scroll-fancy::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+}
+
+/* hide the scrollbar, keep scrollability (both engines) */
+.prt-scroll-none {
+  scrollbar-width: none;
+}
+.prt-scroll-none::-webkit-scrollbar {
+  display: none;
+}

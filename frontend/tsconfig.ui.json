@@ -1,0 +1,16 @@
+{
+  // Relaxed tsconfig for the kit-installed components only (src/components/ui).
+  // Those files weren't written to satisfy noUncheckedIndexedAccess or the
+  // unused-symbol flags, and fixing that isn't meant to be done. First-party code is
+  // still checked under the strict tsconfig.json.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": ["src/components/ui/**/*.ts", "src/components/ui/**/*.vue"],
+  // useValueEngine.ts backs PrtSlider, which auxio doesn't install - excluded
+  // so it isn't type-checked. Remove this if a future step adds the slider.
+  "exclude": ["src/components/ui/_shared/useValueEngine.ts"]
+}
